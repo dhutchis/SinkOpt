@@ -4,7 +4,7 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
-%\author{Dylan Hutchison}
+\author{Dylan Hutchison}
 \title{Sinkhorn's Theorem as a Convex Optimization Problem}
 
 \newcommand{\matr}[1]{\mathbf{#1}} % undergraduate algebra version
@@ -41,11 +41,15 @@ All the Hessian's principal minors are therefore positive, and so the Hessian is
 \section{Lagrange multiplier optimization}
 We use the method of Lagrange multipliers to solve the following:
 \begin{align*}
-\min\;&{f(\matr{N}) = \sum_{ij} \matr{N}_{ij} \ln \frac{\matr{N}_{ij}}{\matr{M}_{ij}}} \\
-\text{subject to } &\forall i: \sum_j \matr{N}_{ij} = 1 \\
-&\forall j: \sum_i \matr{N}_{ij} = 1 \\
-&\forall (i,j): \matr{N}_{ij} > 0
+\min f(\matr{N}) = &\sum_{ij} \matr{N}_{ij} \ln \frac{\matr{N}_{ij}}{\matr{M}_{ij}} \\
+\text{subject to } \forall i: &\sum_j \matr{N}_{ij} = 1 \\
+\forall j: &\sum_i \matr{N}_{ij} = 1 \\
+\forall (i,j): &\;\matr{N}_{ij} > 0
 \end{align*}
+The last inequality constraint must be \textit{inactive} because any $\matr{N}_{ij} = 0$
+would violate the constraint. We therefore do not consider it in the optimization
+but do check to make sure any optimizer satisfies it.
+
 The Lagrange function is 
 \[
 \Lambda(\matr{N},\vec{\lambda}, \vec{\mu}) = 
@@ -68,32 +72,58 @@ We can solve the first equation for $\matr{N}_{ij}$ in terms of $\lambda_i$ and 
 \matr{N}_{ij} &= \matr{M}_{ij} e^{-1}e^{-\lambda_i}e^{-\mu_j}
 \end{align*}
 
-Notice that this is very close to the solution 
+This is very close to the solution 
 of the original problem: we have expressed 
 $\matr{N} = \matr{R}\matr{M}\matr{C}$
-if we define diagonal matrices 
+if we define the entries of the two diagonal matrices 
 $\matr{R}_{ii} := e^{-1}e^{-\lambda_i}$
 and $\matr{C}_{jj} := e^{-1}e^{-\mu_j}$.
 If such a $\vec{\lambda}$ and $\vec{\mu}$ exist,
 they satisfy the row and column sum constraints as well.
-Notice also that $\matr{R}$ and $\matr{C}$ defined this way have all positive entries along the diagonal.
+Notice also that $\matr{R}$ and $\matr{C}$ defined this way have all positive entries along the diagonal,
+and that $\forall (i,j) \; \matr{N}_{ij} > 0$.
 
 Plugging into the second two equations, for all free $i$ on the left and for all free $j$ on the right,
 \begin{align*}
 e^{-\lambda_i} \sum_j \matr{M}_{ij} e^{-\mu_j}
 = e^{-\mu_j} \sum_i \matr{M}_{ij} e^{-\lambda_i}
-= 1
+= e
 \end{align*}
 or, in vector form which combines all the free variables,
 \begin{align*}
 e^{-\vec{\lambda}} \matr{M} e^{-\vec{\mu}^\tr}
 = e^{-\vec{\mu}} \matr{M^\tr} e^{-\vec{\lambda}^\tr}
-= 1
+= e
 \end{align*}
-where the second equation is redundant by the properties of the transpose operation.
-\\
+where the second equation is redundant by properties of the transpose operation.
 
-I'm stuck on proving that the $\vec{\lambda}$ and $\vec{\mu}$ actually exist.
+Any $\vec{\lambda}$ and $\vec{\mu}$ which satisfies $e^{-\vec{\lambda}} \matr{M} e^{-\vec{\mu}^\tr} = e$
+necessarily minimizes the original objective function and satisfies all the constraints
+(including the last set of inactive inequality constraints we omitted). 
+It seems that calculating an actual $\vec{\lambda}$ and $\vec{\mu}$ 
+must be done numerically for a given $\matr{M}$.
+
+\section{KKT: $\vec{\lambda}$ and $\vec{\mu}$ exist}
+The constraints are all linear, which satisfies the 
+constraint qualification condition of the Karush–Kuhn–Tucker theorem.
+It is also easy to show that the gradients of the active constraints are linearly independent.
+
+Because the objective function is convex, the KKT theorem shows 
+that for a given minimizer $\matr{N}^*$ 
+there exists Lagrange multipliers $\vec{\lambda}^*$ and $\vec{\mu}^*$ 
+that satisfy  $\nabla \Lambda(\matr{N}^*,\vec{\lambda}^*, \vec{\mu}^*) = 0$
+and the active constraints.
+Because the objective function is strict convex, the minimum value 
+$f(\matr{N}^*)$ is a global minimum.
+
+The original problem is solved by defining $\matr{R}$ and $\matr{C}$ as above
+for the $\vec{\lambda}^*$ and $\vec{\mu}^*$ that must exist.
+One way to interpret the solution is that the particular choice of $\matr{N}^*$
+that minimizes the objective function is the ``closest'' matrix to $\matr{M}$
+in terms of Kullback–Leibler divergence.
+The $\matr{R}$ and $\matr{C}$ matrices that transform $\matr{M}$ to $\matr{N}^*$
+alter the entries of $\matr{M}$ ``least'' among all possible 
+$\matr{R}$ and $\matr{C}$ matrix transformations.
 
 %\section*{misc}
 %We say that a feasible point is regular when the gradients of the constraints at that point are linearly independent.
