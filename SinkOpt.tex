@@ -1,0 +1,105 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+%\author{Dylan Hutchison}
+\title{Sinkhorn's Theorem as a Convex Optimization Problem}
+
+\newcommand{\matr}[1]{\mathbf{#1}} % undergraduate algebra version
+\newcommand{\tr}[0]{{\intercal}}
+\usepackage{mathtools}
+\DeclarePairedDelimiter{\paren}{(}{)}
+
+\begin{document}
+\maketitle
+
+Suppose that $\matr{M}$ is an $n$-by-$n$ matrix whose entries are positive numbers.  Show that there are positive weights $c_1, c_2, ..., c_n$ on the columns and positive weights on $r_1, ..., r_n$ on the rows so that if you multiply the $i$th column by $c_i$ and the $j$th row by $r_j$, then the resulting matrix $N$ has all row and column sums equal to one.
+
+Equivalently, show that there are diagonal matrices $\matr{R}$ and $\matr{C}$ (with positive diagonal) so that the matrix $\matr{N}=\matr{R} \matr{M} \matr{C}$ has all row and column sums equal to one.
+
+You should prove this in the following way:  Consider the problem of finding a positive matrix N which has all row and column sums equal to one.  Among all such matrices, consider the one that minimizes the value $\sum_{ij} \matr{N}_{ij} \ln \frac{\matr{N}_{ij}}{\matr{M}_{ij}}$.
+
+Explain why this is a convex optimization problem, and why the optimal solution has a form that accomplishes the goal.
+
+\section{$f$ strict convex}
+First we show that the objective function $f(\matr{N}) = \sum_{ij} \matr{N}_{ij} \ln \frac{\matr{N}_{ij}}{\matr{M}_{ij}}$ 
+is strict convex. Any local minima of a strict convex function must be global minima.
+The objective function is strict convex if its Hessian is positive definite.
+We use the notation ``$f_{xy}$'' to mean the derivative of $f$ with first respect to $x$ and 
+second with respect to $y$.
+
+\begin{align*}
+f_{\matr{N}_{ij}} &= \ln{\frac{\matr{N}_{ij}}{\matr{M}_{ij}}} + 1 \\
+f_{\matr{N}_{ij}\matr{N}_{ij}} &= \frac{1}{\matr{N}_{ij}} > 0\\
+\forall (a,b) \neq (i,j): f_{\matr{N}_{ij}\matr{N}_{ab}} &= 0
+\end{align*}
+Thus the Hessian of $f$ has nonzero entries only along its diagonal, and these entries are positive.
+All the Hessian's principal minors are therefore positive, and so the Hessian is positive definite.
+
+\section{Lagrange multiplier optimization}
+We use the method of Lagrange multipliers to solve the following:
+\begin{align*}
+\min\;&{f(\matr{N}) = \sum_{ij} \matr{N}_{ij} \ln \frac{\matr{N}_{ij}}{\matr{M}_{ij}}} \\
+\text{subject to } &\forall i: \sum_j \matr{N}_{ij} = 1 \\
+&\forall j: \sum_i \matr{N}_{ij} = 1 \\
+&\forall (i,j): \matr{N}_{ij} > 0
+\end{align*}
+The Lagrange function is 
+\[
+\Lambda(\matr{N},\vec{\lambda}, \vec{\mu}) = 
+\sum_{ij} \matr{N}_{ij} \ln \frac{\matr{N}_{ij}}{\matr{M}_{ij}} 
++ \sum_i \lambda_i \paren{\sum_j \matr{N}_{ij} - 1}
++ \sum_j \mu_j \paren{\sum_i \matr{N}_{ij} - 1}
+\]
+We now pursue solving $\nabla \Lambda(\matr{N},\vec{\lambda}, \vec{\mu}) = 0$.
+
+\begin{align*}
+\Lambda_{\matr{N}_{ij}} &= \ln{\frac{\matr{N}_{ij}}{\matr{M}_{ij}}} + 1 
++ \lambda_{i} + \mu_j = 0 \\
+\Lambda_{\lambda_i} &= \sum_j \matr{N}_{ij} - 1 = 0 \\
+\Lambda_{\mu_j} &= \sum_i \matr{N}_{ij} - 1 = 0
+\end{align*}
+We can solve the first equation for $\matr{N}_{ij}$ in terms of $\lambda_i$ and $\mu_j$.
+
+\begin{align*}
+\frac{\matr{N}_{ij}}{\matr{M}_{ij}} ee^{\lambda_i}e^{\mu_j} &= 1 \\
+\matr{N}_{ij} &= \matr{M}_{ij} e^{-1}e^{-\lambda_i}e^{-\mu_j}
+\end{align*}
+
+Notice that this is very close to the solution 
+of the original problem: we have expressed 
+$\matr{N} = \matr{R}\matr{M}\matr{C}$
+if we define diagonal matrices 
+$\matr{R}_{ii} := e^{-1}e^{-\lambda_i}$
+and $\matr{C}_{jj} := e^{-1}e^{-\mu_j}$.
+If such a $\vec{\lambda}$ and $\vec{\mu}$ exist,
+they satisfy the row and column sum constraints as well.
+Notice also that $\matr{R}$ and $\matr{C}$ defined this way have all positive entries along the diagonal.
+
+Plugging into the second two equations, for all free $i$ on the left and for all free $j$ on the right,
+\begin{align*}
+e^{-\lambda_i} \sum_j \matr{M}_{ij} e^{-\mu_j}
+= e^{-\mu_j} \sum_i \matr{M}_{ij} e^{-\lambda_i}
+= 1
+\end{align*}
+or, in vector form which combines all the free variables,
+\begin{align*}
+e^{-\vec{\lambda}} \matr{M} e^{-\vec{\mu}^\tr}
+= e^{-\vec{\mu}} \matr{M^\tr} e^{-\vec{\lambda}^\tr}
+= 1
+\end{align*}
+where the second equation is redundant by the properties of the transpose operation.
+\\
+
+I'm stuck on proving that the $\vec{\lambda}$ and $\vec{\mu}$ actually exist.
+
+%\section*{misc}
+%We say that a feasible point is regular when the gradients of the constraints at that point are linearly independent.
+%
+%
+
+
+
+\end{document}
