@@ -12,8 +12,23 @@
 \usepackage{mathtools}
 \DeclarePairedDelimiter{\paren}{(}{)}
 
+\newcommand{\mul}[0]{{\;\oplus.\otimes\;}}
+\usepackage{bbold}
+
 \begin{document}
 \maketitle
+
+
+
+\begin{align*}
+&(I,,V) = \mathbf{A} \mul \mathbb{1}_{k \times 1} &\backslash\backslash \oplus = @Cat \\[\baselineskip]
+&\mathbb{1}_{V \times I} \mul \mathbf{A}(:,a)   &\backslash\backslash \oplus = f\\
++ & \mathbb{1}_{V \times I} \mul \mathbf{A}(:,b) &\backslash\backslash \oplus = g\\
++ & \mathbb{1}_{V \times I} \mul (\mathbf{A} - \mathbf{A}(:,a) - \mathbf{A}(:,b)) &\backslash\backslash \oplus = \_
+\end{align*}
+
+$\oplus:  ColName \times ColValue1 \times ColValue2 \rightarrow NewValue$ \\
+where $ColName \in K_2$ and $ColValue1, ColValue2, NewValue \in V$
 
 Suppose that $\matr{M}$ is an $n$-by-$n$ matrix whose entries are positive numbers.  Show that there are positive weights $c_1, c_2, ..., c_n$ on the columns and positive weights on $r_1, ..., r_n$ on the rows so that if you multiply the $i$th column by $c_i$ and the $j$th row by $r_j$, then the resulting matrix $N$ has all row and column sums equal to one.
 
